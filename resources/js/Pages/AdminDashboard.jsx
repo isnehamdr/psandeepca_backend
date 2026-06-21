@@ -32,8 +32,8 @@ const AdminDashboard = () => {
     ];
 
     const quickLinks = [
-        { label: "Home", href: "/home", icon: FiHome },
-        { label: "Blog", href: "/blog", icon: FiFileText },
+        { label: "Home", href: "/", icon: FiHome },
+        { label: "Blog", href: "/blogs", icon: FiFileText },
         { label: "Services", href: "/services", icon: FiSettings },
     ];
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, usePage } from "@inertiajs/react";
-import { FiMenu, FiX, FiHome, FiFileText, FiSettings } from "react-icons/fi";
+import { FiFileText, FiGrid, FiHome, FiMenu, FiSettings, FiUsers, FiX } from "react-icons/fi";
 
 const AdminSideBar = ({
     isMobileOpen,
@@ -9,20 +9,17 @@ const AdminSideBar = ({
     onToggleCollapse,
 }) => {
     const { url } = usePage();
-    const currentPath = url.split("/")[1];
-
-    // Get authenticated user from auth prop
-    const { auth } = usePage().props;
-    const user = auth?.user;
-
-    // Check The Role of the User
-    const isAdmin = user?.role === "admin";
-    const isUser = user?.role === "user";
-
     const isActive = (href) => {
-        const path = href.replace("/", "");
-        return currentPath === path || url.startsWith(href + "/");
+        return url === href || url.startsWith(href + "/");
     };
+
+    const menuItems = [
+        { label: "Dashboard", href: route("admin.dashboard"), icon: FiGrid },
+        { label: "Home", href: "/", icon: FiHome },
+        { label: "Blog", href: "/blogs", icon: FiFileText },
+        { label: "Services", href: "/services", icon: FiSettings },
+        { label: "Users", href: "/users", icon: FiUsers },
+    ];
 
     // Common link styles
     const linkBaseClasses =
@@ -93,7 +90,7 @@ const AdminSideBar = ({
                                 className="text-xl font-bold text-gray-800 whitespace-nowrap"
                             >
                                 <img
-                                    src="/images/logo.webp"
+                                    src="/images/logo.jpg"
                                     alt="Logo"
                                     className="h-10 w-auto"
                                 />
@@ -137,59 +134,27 @@ const AdminSideBar = ({
                                 </div>
                             )}
 
-                            {/* Home Link */}
-                            <Link
-                                href="/home"
-                                className={`
-                                    ${linkBaseClasses} ${linkCollapsedClasses} ${linkActiveClasses("/home")}
-                                `}
-                            >
-                                <FiHome
-                                    className={iconClasses(isActive("/home"))}
-                                />
-                                {!isCollapsed && (
-                                    <span className="ml-3 font-medium whitespace-nowrap">
-                                        Home
-                                    </span>
-                                )}
-                                {isCollapsed && <Tooltip>Home</Tooltip>}
-                            </Link>
+                            {menuItems.map((item) => {
+                                const Icon = item.icon;
+                                const active = isActive(item.href);
 
-                            {/* Blog Link */}
-                            <Link
-                                href="/blog"
-                                className={`
-                                    ${linkBaseClasses} ${linkCollapsedClasses} ${linkActiveClasses("/blog")}
-                                `}
-                            >
-                                <FiFileText
-                                    className={iconClasses(isActive("/blog"))}
-                                />
-                                {!isCollapsed && (
-                                    <span className="ml-3 font-medium whitespace-nowrap">
-                                        Blog
-                                    </span>
-                                )}
-                                {isCollapsed && <Tooltip>Blog</Tooltip>}
-                            </Link>
-
-                            {/* Services Link */}
-                            <Link
-                                href="/services"
-                                className={`
-                                    ${linkBaseClasses} ${linkCollapsedClasses} ${linkActiveClasses("/services")}
-                                `}
-                            >
-                                <FiSettings
-                                    className={iconClasses(isActive("/services"))}
-                                />
-                                {!isCollapsed && (
-                                    <span className="ml-3 font-medium whitespace-nowrap">
-                                        Services
-                                    </span>
-                                )}
-                                {isCollapsed && <Tooltip>Services</Tooltip>}
-                            </Link>
+                                return (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        onClick={isMobileOpen ? onMobileToggle : undefined}
+                                        className={`${linkBaseClasses} ${linkCollapsedClasses} ${linkActiveClasses(item.href)}`}
+                                    >
+                                        <Icon className={iconClasses(active)} />
+                                        {!isCollapsed && (
+                                            <span className="ml-3 font-medium whitespace-nowrap">
+                                                {item.label}
+                                            </span>
+                                        )}
+                                        {isCollapsed && <Tooltip>{item.label}</Tooltip>}
+                                    </Link>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

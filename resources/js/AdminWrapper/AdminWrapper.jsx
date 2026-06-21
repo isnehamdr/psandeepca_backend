@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
-import AdminNavBar from "./AdminNavBar";
-import AdminSideBar from "./AdminSideBar";
+import AdminNavBar from "./AdminNavbar";
+import AdminSideBar from "./AdminSidebar";
 import { usePage } from "@inertiajs/react";
 
 
@@ -39,7 +39,7 @@ const AdminWrapper = ({ children }) => {
             />
 
             <main
-                className={`flex-1 pt-16 transition-all duration-300 bg-[#eaebef]  px-4 lg:px-6 ${
+                className={`flex-1 min-h-screen pt-16 transition-all duration-300 bg-[#eaebef] px-4 lg:px-6 ${
                     isCollapsed ? "lg:ml-16" : "lg:ml-64"
                 }`}
             >
