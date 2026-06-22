@@ -6,6 +6,12 @@ import Select from 'react-select';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
+const getExistingImageUrl = (path) => {
+	if (!path) return null;
+	if (/^https?:\/\//i.test(path)) return path;
+	return `/storage/${path}`;
+};
+
 const statusOptions = [
 	{ value: 'draft', label: 'Draft' },
 	{ value: 'published', label: 'Published' },
@@ -86,10 +92,13 @@ const selectStyles = {
 const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE_MB = 5;
 
-const AddBlog = ({
+const EditBlog = ({
 	showForm,
 	setShowForm,
 	setReloadTrigger,
+	editingBlog,
+	setEditingBlog,
+	handleUpdate,
 }) => {
 	const [submitting, setSubmitting] = useState(false);
 	const [imagePreview, setImagePreview] = useState(null);
@@ -110,15 +119,22 @@ const AddBlog = ({
 	});
 
 	const imageFile = watch('image');
+	const existingImageUrl = getExistingImageUrl(editingBlog?.image);
 
-	// Reset form when modal opens/closes
+	// Populate form when editing, reset when not
 	useEffect(() => {
-		if (showForm) {
-			reset(emptyForm);
+		if (editingBlog && showForm) {
+			reset({
+				title: editingBlog.title || '',
+				excerpt: editingBlog.excerpt || '',
+				content: editingBlog.content || '',
+				image: null, // force re-upload, don't reuse old file path
+				status: statusOptions.find((opt) => opt.value === editingBlog.status) || null,
+			});
 			setImagePreview(null);
 			setImageError('');
 		}
-	}, [showForm, reset]);
+	}, [editingBlog, showForm, reset]);
 
 	// Build/revoke object URL for the newly selected image
 	useEffect(() => {
@@ -162,18 +178,6 @@ const AddBlog = ({
 		if (fileInputRef.current) fileInputRef.current.value = '';
 	};
 
-	const handleCreate = async (formData) => {
-		try {
-			await axios.post(route('ourblogs.store'), formData, {
-				headers: { 'Content-Type': 'multipart/form-data' },
-			});
-			setReloadTrigger((prev) => !prev);
-		} catch (error) {
-			console.log('Error creating blog', error);
-			throw error;
-		}
-	};
-
 	const onSubmit = async (data) => {
 		const formData = new FormData();
 		formData.append('title', data.title);
@@ -184,11 +188,12 @@ const AddBlog = ({
 
 		try {
 			setSubmitting(true);
-			await handleCreate(formData);
+			await handleUpdate(formData, editingBlog.id);
 			reset(emptyForm);
 			setShowForm(false);
+			setEditingBlog(null);
 		} catch (error) {
-			console.log('Error saving data', error);
+			console.log('Error updating data', error);
 		} finally {
 			setSubmitting(false);
 		}
@@ -196,12 +201,18 @@ const AddBlog = ({
 
 	const handleClose = () => {
 		setShowForm(false);
+		setEditingBlog(null);
 		reset(emptyForm);
 		setImagePreview(null);
 		setImageError('');
 	};
 
-	if (!showForm) return null;
+	if (!showForm || !editingBlog) return null;
+
+	// Decide what to render in the image preview slot:
+	// 1. A freshly chosen file always takes priority.
+	// 2. Otherwise, if editing and an existing image exists, show that.
+	const displayImageUrl = imagePreview || existingImageUrl;
 
 	return (
 		<>
@@ -211,7 +222,7 @@ const AddBlog = ({
 				<div className="bg-white rounded-xl max-w-4xl w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
 					<div className="flex justify-between items-center mb-6">
 						<h2 className="text-2xl font-bold text-gray-800">
-							Add New Blog
+							Edit Blog
 						</h2>
 						<button
 							onClick={handleClose}
@@ -293,20 +304,22 @@ const AddBlog = ({
 								Featured Image
 							</label>
 
-							{imagePreview ? (
-								// Preview state
+							{displayImageUrl ? (
+								// Preview state: shows either the new selection or the existing image
 								<div className="relative border border-gray-300 rounded-lg p-4 flex items-center gap-4">
 									<img
-										src={imagePreview}
+										src={displayImageUrl}
 										alt="Blog preview"
 										className="w-28 h-28 object-cover rounded-lg border border-gray-200 flex-shrink-0"
 									/>
 									<div className="flex-1 min-w-0">
 										<p className="text-sm font-medium text-gray-700 truncate">
-											{imageFile ? imageFile.name : 'Image'}
+											{imageFile ? imageFile.name : 'Current image'}
 										</p>
 										<p className="text-xs text-gray-500 mt-0.5">
-											{imageFile ? `${(imageFile.size / 1024 / 1024).toFixed(2)} MB` : ''}
+											{imageFile
+												? `${(imageFile.size / 1024 / 1024).toFixed(2)} MB`
+												: 'Uploading a new image will replace this one.'}
 										</p>
 										<div className="flex gap-3 mt-2">
 											<button
@@ -314,15 +327,17 @@ const AddBlog = ({
 												onClick={() => fileInputRef.current?.click()}
 												className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
 											>
-												Choose different image
+												{imageFile ? 'Choose different image' : 'Replace image'}
 											</button>
-											<button
-												type="button"
-												onClick={handleRemoveNewImage}
-												className="text-sm font-medium text-gray-500 hover:text-red-600"
-											>
-												Remove
-											</button>
+											{imageFile && (
+												<button
+													type="button"
+													onClick={handleRemoveNewImage}
+													className="text-sm font-medium text-gray-500 hover:text-red-600"
+												>
+													Remove
+												</button>
+											)}
 										</div>
 									</div>
 								</div>
@@ -409,7 +424,7 @@ const AddBlog = ({
 								disabled={submitting}
 								className="px-4 py-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition disabled:opacity-50"
 							>
-								{submitting ? 'Creating...' : 'Create'}
+								{submitting ? 'Updating...' : 'Update'}
 							</button>
 						</div>
 					</form>
@@ -419,4 +434,4 @@ const AddBlog = ({
 	);
 };
 
-export default AddBlog;
+export default EditBlog;

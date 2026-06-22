@@ -89,10 +89,17 @@ const selectStyles = {
 const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE_MB = 5;
 
+const getExistingFileUrl = (path) => {
+    if (!path) return null;
+    if (/^https?:\/\//i.test(path)) return path;
+    return `/storage/${path}`;
+};
+
 const ImageField = ({
     label,
     hint,
     file,
+    existingUrl,
     onSelect,
     onRemove,
     error,
@@ -111,7 +118,7 @@ const ImageField = ({
         setLocalPreview(null);
     }, [file]);
 
-    const displayUrl = localPreview;
+    const displayUrl = localPreview || existingUrl;
 
     const handleFiles = (selectedFile) => {
         if (!selectedFile) return;
@@ -142,7 +149,7 @@ const ImageField = ({
                         <p className="text-xs text-gray-500 mt-0.5">
                             {file
                                 ? `${(file.size / 1024 / 1024).toFixed(2)} MB`
-                                : 'Upload a new image'}
+                                : 'Uploading a new image will replace this one.'}
                         </p>
                         <div className="flex gap-3 mt-2">
                             <button
@@ -150,7 +157,7 @@ const ImageField = ({
                                 onClick={() => inputRef.current?.click()}
                                 className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
                             >
-                                {file ? 'Choose different image' : 'Choose image'}
+                                {file ? 'Choose different image' : 'Replace image'}
                             </button>
                             {file && (
                                 <button
@@ -204,10 +211,12 @@ const ImageField = ({
     );
 };
 
-const AddService = ({
+const EditService = ({
     showForm,
     setShowForm,
     setReloadTrigger,
+    editingService,
+    setEditingService,
 }) => {
     const [submitting, setSubmitting] = useState(false);
     const [formError, setFormError] = useState(null);
@@ -227,12 +236,28 @@ const AddService = ({
     const iconFile = watch('icon');
     const imageFile = watch('image');
 
+    const existingIconUrl = getExistingFileUrl(editingService?.icon);
+    const existingImageUrl = getExistingFileUrl(editingService?.image);
+
     useEffect(() => {
-        reset(emptyForm);
+        if (editingService) {
+            reset({
+                title: editingService.title || '',
+                short_description: editingService.short_description || '',
+                description: editingService.description || '',
+                detail: editingService.detail || '',
+                icon: null,
+                image: null,
+                sort_order: editingService.sort_order ?? 0,
+                is_active:
+                    statusOptions.find((opt) => opt.value === editingService.is_active) ||
+                    statusOptions[0],
+            });
+        }
         setIconError('');
         setImageError('');
         setFormError(null);
-    }, [reset]);
+    }, [editingService, reset]);
 
     const validateFile = (file, setError) => {
         if (!ACCEPTED_TYPES.includes(file.type)) {
@@ -254,14 +279,18 @@ const AddService = ({
         if (validateFile(file, setImageError)) setValue('image', file, { shouldDirty: true });
     };
 
-    const handleCreate = async (formData) => {
+    const handleUpdate = async (formData, id) => {
         try {
-            await axios.post(route('ourservices.store'), formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
+            formData.append('_method', 'PUT');
+            const response = await axios.post(
+                route('ourservices.update', { id }),
+                formData,
+                { headers: { 'Content-Type': 'multipart/form-data' } }
+            );
             setReloadTrigger((prev) => !prev);
+            return response.data;
         } catch (error) {
-            console.error('Error creating service', error);
+            console.error('Error updating service', error);
             throw error;
         }
     };
@@ -281,9 +310,10 @@ const AddService = ({
 
         try {
             setSubmitting(true);
-            await handleCreate(formData);
+            await handleUpdate(formData, editingService.id);
             reset(emptyForm);
             setShowForm(false);
+            setEditingService(null);
         } catch (error) {
             console.error('Error saving data', error);
 
@@ -305,13 +335,14 @@ const AddService = ({
 
     const handleClose = () => {
         setShowForm(false);
+        setEditingService(null);
         reset(emptyForm);
         setIconError('');
         setImageError('');
         setFormError(null);
     };
 
-    if (!showForm) return null;
+    if (!showForm || !editingService) return null;
 
     return (
         <>
@@ -321,7 +352,7 @@ const AddService = ({
                 <div className="bg-white rounded-xl max-w-4xl w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-bold text-gray-800">
-                            Add New Service
+                            Edit Service
                         </h2>
                         <button
                             onClick={handleClose}
@@ -434,6 +465,7 @@ const AddService = ({
                             label="Icon Image"
                             hint={`JPG, PNG, or WEBP, up to ${MAX_FILE_SIZE_MB}MB`}
                             file={iconFile}
+                            existingUrl={existingIconUrl}
                             onSelect={handleIconSelect}
                             onRemove={() => {
                                 setValue('icon', null);
@@ -460,6 +492,7 @@ const AddService = ({
                             label="Image"
                             hint={`JPG, PNG, or WEBP, up to ${MAX_FILE_SIZE_MB}MB`}
                             file={imageFile}
+                            existingUrl={existingImageUrl}
                             onSelect={handleImageSelect}
                             onRemove={() => {
                                 setValue('image', null);
@@ -508,7 +541,7 @@ const AddService = ({
                                 disabled={submitting}
                                 className="px-4 py-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition disabled:opacity-50"
                             >
-                                {submitting ? 'Creating...' : 'Create'}
+                                {submitting ? 'Updating...' : 'Update'}
                             </button>
                         </div>
                     </form>
@@ -518,4 +551,4 @@ const AddService = ({
     );
 };
 
-export default AddService;
+export default EditService;

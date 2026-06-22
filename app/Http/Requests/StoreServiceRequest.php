@@ -29,7 +29,8 @@ class StoreServiceRequest extends FormRequest
             'detail'            => 'nullable|string',
             'icon'              => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'image'             => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'is_active'         => 'required|boolean',
+            'is_active'         => 'required|in:draft,published',
+
             'sort_order'        => 'required|integer',
         ];
     }

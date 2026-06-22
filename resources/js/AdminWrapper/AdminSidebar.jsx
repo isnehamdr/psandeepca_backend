@@ -14,7 +14,7 @@ const AdminSideBar = ({
     };
 
     const menuItems = [
-        { label: "Dashboard", href: route("admin.dashboard"), icon: FiGrid },
+        // { label: "Dashboard", href: route("admin.dashboard"), icon: FiGrid },
         { label: "Home", href: "/", icon: FiHome },
         { label: "Blog", href: "/blogs", icon: FiFileText },
         { label: "Services", href: "/services", icon: FiSettings },
