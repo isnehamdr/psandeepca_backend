@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, usePage } from "@inertiajs/react";
-import { FiFileText, FiGrid, FiHome, FiMenu, FiSettings, FiUsers, FiX } from "react-icons/fi";
+import { FiFileText, FiGrid, FiHome, FiMenu, FiSettings, FiUser, FiUsers, FiX } from "react-icons/fi";
 
 const AdminSideBar = ({
     isMobileOpen,
@@ -14,11 +14,12 @@ const AdminSideBar = ({
     };
 
     const menuItems = [
-        // { label: "Dashboard", href: route("admin.dashboard"), icon: FiGrid },
-        { label: "Home", href: "/", icon: FiHome },
+        { label: "Dashboard", href: "/", icon: FiGrid },
+        { label: "Hero", href: "/heroes", icon: FiHome },
         { label: "Blog", href: "/blogs", icon: FiFileText },
         { label: "Services", href: "/services", icon: FiSettings },
-        { label: "Users", href: "/users", icon: FiUsers },
+        { label: "Team", href: "/teams", icon: FiUsers },
+        { label: "User", href: "/users", icon: FiUser },
     ];
 
     // Common link styles

@@ -136,10 +136,37 @@ const AdminBlog = () => {
 				),
 			},
 			{
+            Header: "Created At",
+            accessor: "created_at",
+            Cell: ({ value }) => (
+                <span className="text-gray-400">
+                    {new Date(value).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                    })}
+                </span>
+            ),
+        },
+        {
+            Header: "Created Time",
+            accessor: "created_at_time",
+            Cell: ({ row }) => (
+                <span className="text-gray-400">
+                    {new Date(row.original.created_at).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: true,
+                    })}
+                </span>
+            ),
+        },
+			{
 				Header: 'Actions',
 				accessor: 'id',
 				Cell: ({ row }) => (
-					<div className="flex justify-end space-x-2">
+					<div className="flex justify-start space-x-2">
 						<button
 							onClick={() => handleView(row.original)}
 							className="p-2 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
@@ -244,7 +271,7 @@ const AdminBlog = () => {
 								setEditingBlog(null);
 								setShowAddForm(true);
 							}}
-							className="px-4 py-2 flex items-center gap-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+							className="px-4 py-2 flex items-center gap-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition"
 						>
 							<Plus size={18} />
 							<span>Create</span>
@@ -381,7 +408,7 @@ const AdminBlog = () => {
 
 				{/* View Blog Modal - Inline */}
 				{showViewModal && viewingBlog && (
-					<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+					<div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
 						<div className="bg-white rounded-xl max-w-4xl w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
 							<div className="flex justify-between items-center mb-6">
 								<h2 className="text-2xl font-bold text-gray-800">
@@ -480,7 +507,7 @@ const AdminBlog = () => {
 
 				{/* Delete Confirmation Dialog - Inline */}
 				{showDeleteDialog && (
-					<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+					<div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
 						<div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
 							<div className="flex justify-between items-start mb-4">
 								<div className="flex items-center gap-3">
@@ -512,13 +539,13 @@ const AdminBlog = () => {
 										setShowDeleteDialog(false);
 										setBlogToDelete(null);
 									}}
-									className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
+									className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
 								>
 									Cancel
 								</button>
 								<button
 									onClick={handleDelete}
-									className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+									className="px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition"
 								>
 									Delete
 								</button>

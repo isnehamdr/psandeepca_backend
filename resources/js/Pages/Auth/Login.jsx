@@ -259,7 +259,7 @@ export default function Login({ status, canResetPassword }) {
                 )}
               </div>
 
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 text-sm text-gray-600">
                   <input
                     type="checkbox"
@@ -279,7 +279,7 @@ export default function Login({ status, canResetPassword }) {
                     Forgot your password?
                   </Link>
                 )}
-              </div>
+              </div> */}
 
               <button
                 type="submit"

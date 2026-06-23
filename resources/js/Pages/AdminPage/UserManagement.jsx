@@ -57,7 +57,7 @@ const UserManagement = () => {
     return (
         <>
             <AdminWrapper>
-                <div className="mb-8 flex justify-between items-center">
+                <div className="mb-8 flex justify-between items-center  mt-8">
                     <div>
                         <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">
                             User Management

@@ -91,7 +91,7 @@ const AdminNavBar = ({ onMenuToggle }) => {
                                 aria-haspopup="true"
                             >
                                 <div className="flex items-center space-x-3">
-                                    <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-gray-100">
+                                    {/* <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-gray-100">
                                         {imageUrl && !imageError ? (
                                             <img
                                                 src={imageUrl}
@@ -102,7 +102,7 @@ const AdminNavBar = ({ onMenuToggle }) => {
                                         ) : (
                                             <FiUser className="w-6 h-6 text-gray-500" />
                                         )}
-                                    </div>
+                                    </div> */}
                                     <div className="hidden sm:block text-left">
                                         <span className="text-sm font-medium text-gray-900 block">
                                             {user?.name || "Guest"}
@@ -128,13 +128,13 @@ const AdminNavBar = ({ onMenuToggle }) => {
                                     </div>
 
                                     <div className="border-t border-gray-100 pt-1">
-                                        <Link
+                                        {/* <Link
                                             href={route("profile.edit")}
                                             className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
                                         >
                                             <FiUser className="w-4 h-4 mr-3" />
                                             Profile
-                                        </Link>
+                                        </Link> */}
                                         <button
                                             onClick={handleLogout}
                                             className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150 focus:outline-none focus:bg-red-50"

@@ -98,6 +98,33 @@ const AdminService = () => {
             ),
         },
         {
+            Header: "Created At",
+            accessor: "created_at",
+            Cell: ({ value }) => (
+                <span className="text-gray-400">
+                    {new Date(value).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                    })}
+                </span>
+            ),
+        },
+        {
+            Header: "Created Time",
+            accessor: "created_at_time",
+            Cell: ({ row }) => (
+                <span className="text-gray-400">
+                    {new Date(row.original.created_at).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: true,
+                    })}
+                </span>
+            ),
+        },
+        {
             Header: "Actions",
             id: "actions",
             Cell: ({ row }) => (
@@ -160,7 +187,7 @@ const AdminService = () => {
         if (!showDeleteDialog) return null;
 
         return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                 <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
                     <div className="text-center">
                         <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
@@ -178,13 +205,13 @@ const AdminService = () => {
                                     setShowDeleteDialog(false);
                                     setServiceToDelete(null);
                                 }}
-                                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
+                                className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleDelete}
-                                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+                                className="px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition"
                             >
                                 Delete
                             </button>
@@ -200,7 +227,7 @@ const AdminService = () => {
         if (!showViewModal || !viewingService) return null;
 
         return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                 <div className="bg-white rounded-xl max-w-3xl w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-bold text-gray-800">

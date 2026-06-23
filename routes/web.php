@@ -3,7 +3,9 @@
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\HeroController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\TeamController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -39,6 +41,13 @@ Route::get('/users',function(){
     return Inertia::render('AdminPage/UserManagement');
 });
 
+Route::get('/heroes',function(){
+    return Inertia::render('AdminPage/AdminHero');
+});
+Route::get('/teams',function(){
+    return Inertia::render('AdminPage/AdminTeam');
+});
+
 Route::get('/ourusers', [UserController::class, 'index'])->name('ourusers.index');
 Route::post('/ourusers', [UserController::class, 'store'])->name('ourusers.store');
 Route::put('/ourusers/{id}', [UserController::class, 'update'])->name('ourusers.update');
@@ -56,7 +65,15 @@ Route::put('/ourservices/{id}', [ServiceController::class, 'update'])->name('our
 Route::delete('/ourservices/{id}', [ServiceController::class, 'destroy'])->name('ourservices.destroy');
 
 
+    Route::get('ourhero/', [HeroController::class, 'index'])->name('ourhero.index');
+    Route::post('ourhero/', [HeroController::class, 'store'])->name('ourhero.store');
+    Route::put('ourhero/{hero}', [HeroController::class, 'update'])->name('ourhero.update');
+    Route::delete('ourhero/{hero}', [HeroController::class, 'destroy'])->name('ourhero.destroy');
 
+ Route::get('ourteam/', [TeamController::class, 'index'])->name('ourteam.index');
+    Route::post('ourteam/', [TeamController::class, 'store'])->name('ourteam.store');
+    Route::put('ourteam/{team}', [TeamController::class, 'update'])->name('ourteam.update');
+    Route::delete('ourteam/{team}', [TeamController::class, 'destroy'])->name('ourteam.destroy');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
