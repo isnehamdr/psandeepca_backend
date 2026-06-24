@@ -17,6 +17,7 @@ const AdminHero = () => {
 	const [showViewModal, setShowViewModal] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 	const [heroToDelete, setHeroToDelete] = useState(null);
+	const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
 	// Fetch hero data
 	useEffect(() => {
@@ -96,6 +97,8 @@ const AdminHero = () => {
 		return truncatedPlain;
 	};
 
+
+
 	// Define columns for React Table
 	const columns = useMemo(
 		() => [
@@ -107,7 +110,7 @@ const AdminHero = () => {
 				Cell: ({ value }) =>
 					value ? (
 						<img
-							src={`/storage/${value}`}
+							src={`${imgurl}/${value}`}
 							alt="Hero"
 							className="w-16 h-16 object-cover rounded-lg"
 						/>
@@ -488,7 +491,7 @@ const AdminHero = () => {
 							{viewingHero.image && (
 								<div className="rounded-lg overflow-hidden">
 									<img
-										src={`/storage/${viewingHero.image}`}
+										src={`${imgurl}/${viewingHero.image}`}
 										alt={viewingHero.title}
 										className="w-full h-64 object-cover"
 									/>

@@ -23,6 +23,23 @@ class ServiceController extends Controller
         ]);
     }
 
+    public function indexShowServiceSlug(string $slug)
+{
+    $service = $this->servicesService->getBySlug($slug);
+
+    if (! $service) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Service not found.'
+        ], 404);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data'    => $service
+    ]);
+}
+
     /**
      * Store a newly created service.
      */

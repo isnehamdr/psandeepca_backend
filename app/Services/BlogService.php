@@ -16,7 +16,12 @@ class BlogService
     {
         return Blog::latest()->get();
     }
-
+public function getBySlug(string $slug): ?Blog
+{
+    return Blog::where('slug', $slug)
+        ->where('status', 'published')
+        ->first();
+}
     /**
      * Create a new blog.
      */

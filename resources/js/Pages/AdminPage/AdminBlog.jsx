@@ -16,6 +16,7 @@ const AdminBlog = () => {
 	const [showViewModal, setShowViewModal] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 	const [blogToDelete, setBlogToDelete] = useState(null);
+	const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
 	// For fetching the blog data
 	useEffect(() => {
@@ -30,6 +31,7 @@ const AdminBlog = () => {
 
 		fetchBlogs();
 	}, [reloadTrigger]);
+
 
 	// For delete the blog
 	const handleDelete = async () => {
@@ -110,7 +112,7 @@ const AdminBlog = () => {
 				Cell: ({ value }) => (
 					value ? (
 						<img
-							src={`/storage/${value}`}
+							src={`${imgurl}/${value}`}
 							alt="Blog"
 							className="w-12 h-12 object-cover rounded"
 						/>
@@ -427,7 +429,7 @@ const AdminBlog = () => {
 								{viewingBlog.image && (
 									<div className="rounded-lg overflow-hidden">
 										<img
-											src={`/storage/${viewingBlog.image}`}
+											src={`${imgurl}/${viewingBlog.image}`}
 											alt={viewingBlog.title}
 											className="w-full h-64 object-cover"
 										/>

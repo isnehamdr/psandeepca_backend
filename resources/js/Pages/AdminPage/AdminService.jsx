@@ -17,6 +17,7 @@ const AdminService = () => {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [serviceToDelete, setServiceToDelete] = useState(null);
     const [pageError, setPageError] = useState(null);
+    const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
     useEffect(() => {
         const fetchService = async () => {
@@ -71,7 +72,7 @@ const AdminService = () => {
             Cell: ({ value }) => (
                 value ? (
                     <img
-                        src={`/storage/${value}`}
+                        src={`${imgurl}/${value}`}
                         alt="icon"
                         className="h-10 w-10 object-cover rounded"
                     />
@@ -253,7 +254,7 @@ const AdminService = () => {
                                     Icon
                                 </label>
                                 <img
-                                    src={`/storage/${viewingService.icon}`}
+                                    src={`${imgurl}/${viewingService.icon}`}
                                     alt={viewingService.title}
                                     className="h-20 w-20 object-cover rounded-lg border border-gray-200"
                                 />
@@ -309,7 +310,7 @@ const AdminService = () => {
                                     Image
                                 </label>
                                 <img
-                                    src={`/storage/${viewingService.image}`}
+                                    src={`${imgurl}/${viewingService.image}`}
                                     alt={viewingService.title}
                                     className="max-h-64 object-cover rounded-lg border border-gray-200"
                                 />

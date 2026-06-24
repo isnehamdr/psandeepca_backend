@@ -3,18 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Models\Team;
+use App\Services\TeamService;
+use App\Http\Requests\StoreTeamRequest;
+use App\Http\Requests\UpdateTeamRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\JsonResponse;
 
 class TeamController extends Controller
 {
+    protected TeamService $teamService;
+
+    /**
+     * Constructor with dependency injection.
+     */
+    public function __construct(TeamService $teamService)
+    {
+        $this->teamService = $teamService;
+    }
+
     /**
      * Display a listing of the teams.
      */
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        $teams = Team::latest()->paginate(10);
+        $perPage = $request->get('per_page', 10);
+
+        // Optional search functionality
+        if ($request->has('search')) {
+            $teams = $this->teamService->searchTeams($request->search, $perPage);
+        } else {
+            $teams = $this->teamService->getAllTeams($perPage);
+        }
 
         return response()->json([
             'success' => true,
@@ -25,34 +44,9 @@ class TeamController extends Controller
     /**
      * Store a newly created team.
      */
-    public function store(Request $request)
+    public function store(StoreTeamRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'title' => 'required|string|max:255',
-            'icon_image' => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
-            'person_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'is_active' => 'boolean',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $data = $validator->validated();
-
-        if ($request->hasFile('icon_image')) {
-            $data['icon_image'] = $request->file('icon_image')->store('teams/icons', 'public');
-        }
-
-        if ($request->hasFile('person_image')) {
-            $data['person_image'] = $request->file('person_image')->store('teams/persons', 'public');
-        }
-
-        $team = Team::create($data);
+        $team = $this->teamService->createTeam($request->validated());
 
         return response()->json([
             'success' => true,
@@ -64,8 +58,10 @@ class TeamController extends Controller
     /**
      * Display the specified team.
      */
-    public function show(Team $team)
+    public function show(int $id): JsonResponse
     {
+        $team = $this->teamService->getTeamOrFail($id);
+
         return response()->json([
             'success' => true,
             'data' => $team,
@@ -75,14 +71,82 @@ class TeamController extends Controller
     /**
      * Update the specified team.
      */
-    public function update(Request $request, Team $team)
+    public function update(UpdateTeamRequest $request, int $id): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|required|string|max:255',
-            'title' => 'sometimes|required|string|max:255',
-            'icon_image' => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
-            'person_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'is_active' => 'boolean',
+        $team = $this->teamService->getTeamOrFail($id);
+        $updatedTeam = $this->teamService->updateTeam($team, $request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Team member updated successfully.',
+            'data' => $updatedTeam,
+        ]);
+    }
+
+    /**
+     * Remove the specified team.
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        $team = $this->teamService->getTeamOrFail($id);
+        $this->teamService->deleteTeam($team);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Team member deleted successfully.',
+        ]);
+    }
+
+    /**
+     * Toggle team member active status.
+     */
+    public function toggleActive(int $id): JsonResponse
+    {
+        $team = $this->teamService->getTeamOrFail($id);
+        $updatedTeam = $this->teamService->toggleActive($team);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Team member status toggled successfully.',
+            'data' => $updatedTeam,
+        ]);
+    }
+
+    /**
+     * Get only active teams.
+     */
+    public function active(Request $request): JsonResponse
+    {
+        $perPage = $request->get('per_page', 10);
+        $teams = $this->teamService->getActiveTeams($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => $teams,
+        ]);
+    }
+
+    /**
+     * Get all active teams without pagination.
+     */
+    public function allActive(): JsonResponse
+    {
+        $teams = $this->teamService->getAllActiveTeams();
+
+        return response()->json([
+            'success' => true,
+            'data' => $teams,
+        ]);
+    }
+
+    /**
+     * Bulk delete teams.
+     */
+    public function bulkDelete(Request $request): JsonResponse
+    {
+        $validator = validator($request->all(), [
+            'ids' => 'required|array',
+            'ids.*' => 'required|integer|exists:teams,id',
         ]);
 
         if ($validator->fails()) {
@@ -92,49 +156,55 @@ class TeamController extends Controller
             ], 422);
         }
 
-        $data = $validator->validated();
-
-        if ($request->hasFile('icon_image')) {
-            if ($team->icon_image) {
-                Storage::disk('public')->delete($team->icon_image);
-            }
-            $data['icon_image'] = $request->file('icon_image')->store('teams/icons', 'public');
-        }
-
-        if ($request->hasFile('person_image')) {
-            if ($team->person_image) {
-                Storage::disk('public')->delete($team->person_image);
-            }
-            $data['person_image'] = $request->file('person_image')->store('teams/persons', 'public');
-        }
-
-        $team->update($data);
+        $deletedCount = $this->teamService->bulkDeleteTeams($request->ids);
 
         return response()->json([
             'success' => true,
-            'message' => 'Team member updated successfully.',
-            'data' => $team,
+            'message' => "{$deletedCount} team members deleted successfully.",
+            'deleted_count' => $deletedCount,
         ]);
     }
 
     /**
-     * Remove the specified team.
+     * Bulk update active status.
      */
-    public function destroy(Team $team)
+    public function bulkUpdateActive(Request $request): JsonResponse
     {
-        if ($team->icon_image) {
-            Storage::disk('public')->delete($team->icon_image);
+        $validator = validator($request->all(), [
+            'ids' => 'required|array',
+            'ids.*' => 'required|integer|exists:teams,id',
+            'is_active' => 'required|boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
         }
 
-        if ($team->person_image) {
-            Storage::disk('public')->delete($team->person_image);
-        }
-
-        $team->delete();
+        $updatedCount = $this->teamService->bulkUpdateActive(
+            $request->ids,
+            filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN)
+        );
 
         return response()->json([
             'success' => true,
-            'message' => 'Team member deleted successfully.',
+            'message' => "{$updatedCount} team members updated successfully.",
+            'updated_count' => $updatedCount,
+        ]);
+    }
+
+    /**
+     * Get team statistics.
+     */
+    public function statistics(): JsonResponse
+    {
+        $stats = $this->teamService->getTeamStatistics();
+
+        return response()->json([
+            'success' => true,
+            'data' => $stats,
         ]);
     }
 }

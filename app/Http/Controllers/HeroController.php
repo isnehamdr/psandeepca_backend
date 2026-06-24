@@ -2,42 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreHeroRequest;
+use App\Http\Requests\UpdateHeroRequest;
 use App\Models\Hero;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Services\HeroService;
 
 class HeroController extends Controller
 {
-    /**
-     * Display all heroes.
-     */
+    protected HeroService $heroService;
+
+    public function __construct(HeroService $heroService)
+    {
+        $this->heroService = $heroService;
+    }
+
     public function index()
     {
-        $heroes = Hero::latest()->get();
-
         return response()->json([
             'success' => true,
-            'data' => $heroes,
+            'data' => $this->heroService->getAll(),
         ]);
     }
 
-    /**
-     * Store a newly created hero.
-     */
-    public function store(Request $request)
+    public function store(StoreHeroRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'short_description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'is_active' => 'required|boolean',
-        ]);
-
-        if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('heroes', 'public');
-        }
-
-        $hero = Hero::create($validated);
+        $hero = $this->heroService->create(
+            $request->validated()
+        );
 
         return response()->json([
             'success' => true,
@@ -46,27 +37,20 @@ class HeroController extends Controller
         ], 201);
     }
 
-    /**
-     * Update the specified hero.
-     */
-    public function update(Request $request, Hero $hero)
+    public function show(Hero $hero)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'short_description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'is_active' => 'required|boolean',
+        return response()->json([
+            'success' => true,
+            'data' => $this->heroService->getById($hero),
         ]);
+    }
 
-        if ($request->hasFile('image')) {
-            if ($hero->image && Storage::disk('public')->exists($hero->image)) {
-                Storage::disk('public')->delete($hero->image);
-            }
-
-            $validated['image'] = $request->file('image')->store('heroes', 'public');
-        }
-
-        $hero->update($validated);
+    public function update(UpdateHeroRequest $request, Hero $hero)
+    {
+        $hero = $this->heroService->update(
+            $hero,
+            $request->validated()
+        );
 
         return response()->json([
             'success' => true,
@@ -75,31 +59,13 @@ class HeroController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified hero.
-     */
     public function destroy(Hero $hero)
     {
-        if ($hero->image && Storage::disk('public')->exists($hero->image)) {
-            Storage::disk('public')->delete($hero->image);
-        }
-
-        $hero->delete();
+        $this->heroService->delete($hero);
 
         return response()->json([
             'success' => true,
             'message' => 'Hero deleted successfully.',
-        ]);
-    }
-
-    /**
-     * Display a single hero.
-     */
-    public function show(Hero $hero)
-    {
-        return response()->json([
-            'success' => true,
-            'data' => $hero,
         ]);
     }
 }

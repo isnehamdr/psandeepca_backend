@@ -19,6 +19,23 @@ class BlogController extends Controller
         ]);
     }
 
+    public function indexShowblogSlug(string $slug)
+{
+    $blog = $this->blogService->getBySlug($slug);
+
+    if (! $blog) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Blog not found.'
+        ], 404);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data'    => $blog
+    ]);
+}
+
     public function store(StoreBlogRequest $request)
     {
         $blog = $this->blogService->create(
@@ -32,6 +49,7 @@ class BlogController extends Controller
             'data'    => $blog
         ], 201);
     }
+
 
     public function update(UpdateBlogRequest $request, Blog $blog)
     {

@@ -16,6 +16,7 @@ const AdminTeam = () => {
 	const [showViewModal, setShowViewModal] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 	const [teamToDelete, setTeamToDelete] = useState(null);
+		const imgurl = import.meta.env.VITE_IMAGE_PATH;
 
 	// Fetch team data
 	useEffect(() => {
@@ -88,7 +89,7 @@ const AdminTeam = () => {
 				Cell: ({ value }) =>
 					value ? (
 						<img
-							src={`/storage/${value}`}
+							src={`${imgurl}/${value}`}
 							alt="Icon"
 							className="w-12 h-12 object-cover rounded-full"
 						/>
@@ -417,7 +418,7 @@ const AdminTeam = () => {
 							{viewingTeam.person_image && (
 								<div className="rounded-lg overflow-hidden">
 									<img
-										src={`/storage/${viewingTeam.person_image}`}
+										src={`${imgurl}/${viewingTeam.person_image}`}
 										alt={viewingTeam.name}
 										className="w-full h-64 object-cover"
 									/>
@@ -427,7 +428,7 @@ const AdminTeam = () => {
 							<div className="flex items-center gap-4">
 								{viewingTeam.icon_image && (
 									<img
-										src={`/storage/${viewingTeam.icon_image}`}
+										src={`${imgurl}/${viewingTeam.icon_image}`}
 										alt="Icon"
 										className="w-16 h-16 rounded-full object-cover border border-gray-200"
 									/>

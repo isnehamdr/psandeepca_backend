@@ -184,6 +184,8 @@ const EditHero = ({
 	// 2. Otherwise, if editing and an existing image exists, show that.
 	const displayImageUrl = imagePreview || existingImageUrl;
 
+	console.log('editingHero', editingHero);
+
 	return (
 		<>
 			<style>{customStyles}</style>
