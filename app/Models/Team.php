@@ -9,7 +9,9 @@ class Team extends Model
     protected $fillable = [
         'name',
         'title',
-        'icon_image',
+        'instagram_link',
+        'facebook_link',
+        'linkedin_link',
         'person_image',
         'is_active',
     ];

@@ -12,7 +12,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('title');
-            $table->string('icon_image')->nullable();
+            $table->string('instagram_link')->nullable();
+            $table->string('facebook_link')->nullable();
+            $table->string('linkedin_link')->nullable();
             $table->string('person_image')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();

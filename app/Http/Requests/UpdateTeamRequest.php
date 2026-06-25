@@ -25,7 +25,9 @@ class UpdateTeamRequest extends FormRequest
         return [
             'name' => 'sometimes|required|string|max:255',
             'title' => 'sometimes|required|string|max:255',
-            'icon_image' => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
+            'instagram_link' => 'nullable|url|max:255',
+            'facebook_link' => 'nullable|url|max:255',
+            'linkedin_link' => 'nullable|url|max:255',
             'person_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'is_active' => 'boolean',
         ];

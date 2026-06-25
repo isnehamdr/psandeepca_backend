@@ -386,7 +386,7 @@ const EditService = ({
                         </div>
 
                         {/* Short Description */}
-                        <div>
+                        {/* <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Short Description
                             </label>
@@ -408,7 +408,7 @@ const EditService = ({
                                     )}
                                 />
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* Description */}
                         <div>

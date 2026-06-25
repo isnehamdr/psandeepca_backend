@@ -38,7 +38,6 @@ class TeamService
      */
     public function createTeam(array $data): Team
     {
-        // Handle file uploads
         $data = $this->handleFileUploads($data, null);
 
         return Team::create($data);
@@ -49,7 +48,6 @@ class TeamService
      */
     public function updateTeam(Team $team, array $data): Team
     {
-        // Handle file uploads and delete old files
         $data = $this->handleFileUploads($data, $team);
 
         $team->update($data);
@@ -62,7 +60,6 @@ class TeamService
      */
     public function deleteTeam(Team $team): bool
     {
-        // Delete associated files
         $this->deleteTeamFiles($team);
 
         return $team->delete();
@@ -103,25 +100,10 @@ class TeamService
 
     /**
      * Handle file uploads for team images.
+     * (Social links are plain strings now, so only person_image needs file handling.)
      */
     protected function handleFileUploads(array $data, ?Team $team): array
     {
-        // Handle icon image
-        if (isset($data['icon_image']) && $data['icon_image'] instanceof UploadedFile) {
-            // Delete old icon if exists
-            if ($team && $team->icon_image) {
-                $this->deleteFile($team->icon_image);
-            }
-
-            $data['icon_image'] = $this->uploadFile($data['icon_image'], 'teams/icons');
-        } elseif ($team && !isset($data['icon_image'])) {
-            // Keep existing icon if not provided
-            unset($data['icon_image']);
-        } else {
-            // Remove icon field if null
-            unset($data['icon_image']);
-        }
-
         // Handle person image
         if (isset($data['person_image']) && $data['person_image'] instanceof UploadedFile) {
             // Delete old person image if exists
@@ -166,10 +148,6 @@ class TeamService
      */
     protected function deleteTeamFiles(Team $team): void
     {
-        if ($team->icon_image) {
-            $this->deleteFile($team->icon_image);
-        }
-
         if ($team->person_image) {
             $this->deleteFile($team->person_image);
         }
