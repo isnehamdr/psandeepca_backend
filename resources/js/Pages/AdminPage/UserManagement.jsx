@@ -99,12 +99,12 @@ const UserManagement = () => {
                                     <td className="p-3">{user.email}</td>
                                     <td className="p-3 capitalize">{user.role}</td>
                                     <td className="p-3 text-right space-x-2">
-                                        <button
+                                        {/* <button
                                             onClick={() => handleEdit(user)}
                                             className="p-2 hover:bg-gray-100 rounded-full"
                                         >
                                             <Pencil size={16} />
-                                        </button>
+                                        </button> */}
                                         <button
                                             onClick={() => handleDelete(user.id)}
                                             className="p-2 hover:bg-gray-100 rounded-full text-red-500"
